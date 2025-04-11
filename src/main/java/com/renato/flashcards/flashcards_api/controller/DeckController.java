@@ -1,36 +1,71 @@
 package com.renato.flashcards.flashcards_api.controller;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.net.URI;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import com.renato.flashcards.flashcards_api.controller.dto.NewDeckComFlashCardsDTO;
-import com.renato.flashcards.flashcards_api.controller.dto.NewDeckDTO;
-import com.renato.flashcards.flashcards_api.controller.dto.NewFlashCardDTO;
+import com.renato.flashcards.flashcards_api.controller.dto.CreateDeckDTO;
+import com.renato.flashcards.flashcards_api.controller.dto.ReadDeckDTO;
+import com.renato.flashcards.flashcards_api.controller.dto.ReadDeckWithFlashCardsDTO;
+import com.renato.flashcards.flashcards_api.controller.dto.UpdateDeckDTO;
 import com.renato.flashcards.flashcards_api.domain.Deck;
-import com.renato.flashcards.flashcards_api.domain.FlashCard;
-import com.renato.flashcards.flashcards_api.service.DeckService;
+import com.renato.flashcards.flashcards_api.repository.DeckRepository;
 
-import jakarta.validation.Valid;
+import jakarta.transaction.Transactional;
 
 @RestController
 @RequestMapping("/deck")
 public class DeckController {
 
-	private DeckService deckService;
+	private DeckRepository deckRepository;
 
-	public DeckController(DeckService deckService) {
+	public DeckController(DeckRepository deckRepository) {
 		super();
-		this.deckService = deckService;
+		this.deckRepository = deckRepository;
 	}
 
 	@PostMapping
-	public ResponseEntity<?> createDeck(@RequestBody @Valid NewDeckDTO newDeckDTO){
-		return null;
+	@Transactional
+	public ResponseEntity<?> createDeck(@RequestBody CreateDeckDTO dto, UriComponentsBuilder uri) {
+		Deck model = dto.toModel();
+		deckRepository.save(model);
+		URI location = uri.path("api/deck/{id}").buildAndExpand(model.getId()).toUri();
+		return ResponseEntity.created(location).build();
+	}
+
+	@GetMapping("/{id}/flashcards")
+	@Transactional
+	public ResponseEntity<?> readDeckWithFlashCards(@PathVariable Long id){
+		Deck deckWithFlashCards = deckRepository.findById(id).orElseThrow();
+		return ResponseEntity.ok(new ReadDeckWithFlashCardsDTO(deckWithFlashCards));
+	}
+	
+	@GetMapping("/{id}")
+	public ResponseEntity<?> readDeck(@PathVariable Long id) {
+		Deck deck = deckRepository.findById(id).orElseThrow();
+		return ResponseEntity.ok(new ReadDeckDTO(deck));
+	}
+
+	@PutMapping("/{id}")
+	@Transactional
+	public ResponseEntity<?> updateDeck(@PathVariable Long id, @RequestBody UpdateDeckDTO dto) {
+		Deck deck = deckRepository.findById(id).orElseThrow();
+		deck.setName(dto.name());
+		return ResponseEntity.ok(new ReadDeckDTO(deck));
+	}
+
+	@DeleteMapping("/{id}")
+	public ResponseEntity<?> deleteDeck(@PathVariable Long id) {
+		deckRepository.deleteById(id);
+		return ResponseEntity.noContent().build();
 	}
 }
