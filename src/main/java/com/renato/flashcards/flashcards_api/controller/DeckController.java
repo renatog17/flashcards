@@ -1,8 +1,10 @@
 package com.renato.flashcards.flashcards_api.controller;
 
 import java.net.URI;
+import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +26,7 @@ import jakarta.transaction.Transactional;
 
 @RestController
 @RequestMapping("/deck")
+@CrossOrigin(origins = "http://localhost:3000")
 public class DeckController {
 
 	private DeckRepository deckRepository;
@@ -54,6 +57,16 @@ public class DeckController {
 		Deck deck = deckRepository.findById(id).orElseThrow();
 		return ResponseEntity.ok(new ReadDeckDTO(deck));
 	}
+	
+	@GetMapping
+	public ResponseEntity<List<ReadDeckDTO>> getDecks() {
+	    List<Deck> decks = deckRepository.findAll();
+	    List<ReadDeckDTO> dtoList = decks.stream()
+	                                     .map(ReadDeckDTO::new)
+	                                     .toList();
+	    return ResponseEntity.ok(dtoList);
+	}
+
 
 	@PutMapping("/{id}")
 	@Transactional
