@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +22,7 @@ import com.renato.flashcards.flashcards_api.controller.dto.ReadDeckWithFlashCard
 import com.renato.flashcards.flashcards_api.controller.dto.UpdateDeckDTO;
 import com.renato.flashcards.flashcards_api.domain.Deck;
 import com.renato.flashcards.flashcards_api.repository.DeckRepository;
+import com.renato.flashcards.flashcards_api.security.domain.User;
 
 import jakarta.transaction.Transactional;
 
@@ -38,8 +40,12 @@ public class DeckController {
 
 	@PostMapping
 	@Transactional
-	public ResponseEntity<?> createDeck(@RequestBody CreateDeckDTO dto, UriComponentsBuilder uri) {
+	public ResponseEntity<?> createDeck(@RequestBody CreateDeckDTO dto, UriComponentsBuilder uri,
+		@AuthenticationPrincipal User user){
+		System.out.println(user.getLogin());
+		
 		Deck model = dto.toModel();
+		model.setOwner(user);
 		deckRepository.save(model);
 		URI location = uri.path("api/deck/{id}").buildAndExpand(model.getId()).toUri();
 		return ResponseEntity.created(location).build();
