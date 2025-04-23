@@ -45,7 +45,10 @@ public class Deck {
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", referencedColumnName = "id")
 	private User owner;
-
+	
+	@OneToMany(mappedBy = "deck")
+	private List<UserDeck> usersDecks;
+	
 	public Deck(String name) {
 		super();
 		this.name = name;

@@ -42,8 +42,6 @@ public class DeckController {
 	@Transactional
 	public ResponseEntity<?> createDeck(@RequestBody CreateDeckDTO dto, UriComponentsBuilder uri,
 		@AuthenticationPrincipal User user){
-		System.out.println(user.getLogin());
-		
 		Deck model = dto.toModel();
 		model.setOwner(user);
 		deckRepository.save(model);

@@ -8,10 +8,13 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.renato.flashcards.flashcards_api.domain.UserDeck;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Table(name = "users")
@@ -25,6 +28,9 @@ public class User implements UserDetails{
 	private String password;
 	private UserRole role;
 
+	@OneToMany(mappedBy = "user")
+	private List<UserDeck> usersDecks;
+	
 	public User() {
 		super();
 		// TODO Auto-generated constructor stub
