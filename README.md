@@ -1,29 +1,34 @@
-# Kit Card 🃏
-Aplicativo de flash cards desenvolvido para ajudar nos estudos de forma prática e personalizada.
+# Kit Card 🃏  
+Aplicativo de flash cards desenvolvido para facilitar os estudos de forma prática, organizada e personalizada.
 
-## 💡 Sobre o projeto
+## 💡 Sobre o projeto  
+O **Kit Card** é uma aplicação web que permite criar, gerenciar e revisar flash cards agrupados em *decks*. É ideal para estudantes, autodidatas ou qualquer pessoa que queira melhorar a memorização de conteúdos com eficiência.
 
-O **Kit Card** é uma aplicação web que permite aos usuários criar, gerenciar e revisar flash cards organizados em decks. Ideal para estudantes, autodidatas ou qualquer pessoa que deseje memorizar conteúdos com eficiência.
+## 🔐 Segurança  
+A aplicação utiliza **Spring Security** para proteger rotas e autenticar usuários, garantindo acesso seguro às funcionalidades.
 
-## 🔒 Segurança
+## 📚 Documentação da API  
+A documentação está disponível via **Swagger UI**.  
+🔗 Acesse: [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
 
-Este projeto utiliza **Spring Security** para garantir a proteção das rotas e a autenticação dos usuários.
+## 📈 Monitoramento  
+O projeto também conta com o **Spring Boot Actuator** para expor métricas e endpoints de gerenciamento da aplicação.
 
-## ⚙️ Tecnologias utilizadas
+## ⚙️ Tecnologias utilizadas  
+- Java 21+  
+- Spring Boot  
+- Spring Security  
+- Spring Data JPA  
+- PostgreSQL  
+- Swagger (OpenAPI)  
+- Spring Boot Actuator  
+- Maven  
 
-- Java 21+
-- Spring Boot
-- Spring Security
-- Spring Data JPA
-- PostgreSQL
-- Maven
+## 🚀 Como executar  
+Em construção 👷‍♂️
 
-## 🚀 Como executar
-
-## 📌 Funcionalidades
-
-- Cadastro e autenticação de usuários
-- Criação de decks
-- Adição e edição de flash cards
-- Revisão de cards
-
+## 📌 Funcionalidades  
+- Cadastro e autenticação de usuários  
+- Criação de decks personalizados  
+- Adição, edição e remoção de flash cards  
+- Revisão de cards para fixação de conteúdo  
