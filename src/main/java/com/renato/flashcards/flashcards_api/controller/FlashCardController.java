@@ -3,8 +3,8 @@ package com.renato.flashcards.flashcards_api.controller;
 import java.net.URI;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.renato.flashcards.flashcards_api.controller.dto.CreateFlashCardDTO;
-import com.renato.flashcards.flashcards_api.controller.dto.ReadFlashCardDTO;
 import com.renato.flashcards.flashcards_api.controller.dto.UpdateFlashCardDTO;
 import com.renato.flashcards.flashcards_api.domain.FlashCard;
-import com.renato.flashcards.flashcards_api.repository.FlashCardRepository;
+import com.renato.flashcards.flashcards_api.security.domain.User;
+import com.renato.flashcards.flashcards_api.service.FlashCardService;
 
 import jakarta.transaction.Transactional;
 
@@ -25,45 +25,32 @@ import jakarta.transaction.Transactional;
 @RequestMapping("/flashcard")
 public class FlashCardController {
 
-	private FlashCardRepository flashCardRepository;
+	private FlashCardService flashCardService;
 
-	public FlashCardController(FlashCardRepository flashCardRepository) {
+	public FlashCardController(FlashCardService flashCardService) {
 		super();
-		this.flashCardRepository = flashCardRepository;
+		this.flashCardService = flashCardService;
 	}
 
 	@PostMapping
 	@Transactional
-	public ResponseEntity<?> createFlashCard(@RequestBody CreateFlashCardDTO dto, UriComponentsBuilder uri){
-		FlashCard model = dto.toModel();
-		flashCardRepository.save(model);
+	public ResponseEntity<?> createFlashCard(@RequestBody CreateFlashCardDTO dto, UriComponentsBuilder uri,
+			@AuthenticationPrincipal User user){
+		FlashCard model = flashCardService.createFlashCard(dto);
 		URI location = uri.path("api/flashcard/{id}").buildAndExpand(model.getId()).toUri();
 		return ResponseEntity.created(location).build();
 	}
 	
-	@GetMapping("/{id}")
-	public ResponseEntity<?> readFlashCard(@PathVariable Long id){
-		FlashCard flashCard = flashCardRepository.findById(id).orElseThrow();
-		return ResponseEntity.ok(new ReadFlashCardDTO(flashCard));
-	}
-
 	@PutMapping("/{id}")
 	@Transactional
 	public ResponseEntity<?> updateFlashCard(@PathVariable Long id, @RequestBody UpdateFlashCardDTO updateFlashCardDTO){
-		FlashCard flashCard = flashCardRepository.findById(id).orElseThrow();
-		flashCard.atualizar(updateFlashCardDTO);
-		return ResponseEntity.ok(new ReadFlashCardDTO(flashCard));
+		return ResponseEntity.ok(flashCardService.updateFlashCard(updateFlashCardDTO, id));
 	}
 	
 	@DeleteMapping("/{id}")
 	@Transactional
 	public ResponseEntity<?> deleteFlashCard(@PathVariable Long id){
-		System.out.println("aqui");
-		if (!flashCardRepository.existsById(id)) {
-	        return ResponseEntity.notFound().build();
-	    }
-
-	    flashCardRepository.deleteById(id);
+		flashCardService.deleteFlashCard(id);
 	    return ResponseEntity.noContent().build();
 	}
 }

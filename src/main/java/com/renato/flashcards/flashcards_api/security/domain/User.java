@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.renato.flashcards.flashcards_api.domain.Deck;
 import com.renato.flashcards.flashcards_api.domain.UserDeck;
 
 import jakarta.persistence.Entity;
@@ -28,6 +29,9 @@ public class User implements UserDetails{
 	private String password;
 	private UserRole role;
 
+	@OneToMany(mappedBy = "owner")
+	private List<Deck> decks;
+	
 	@OneToMany(mappedBy = "user")
 	private List<UserDeck> usersDecks;
 	
