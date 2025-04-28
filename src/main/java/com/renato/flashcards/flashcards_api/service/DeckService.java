@@ -49,6 +49,9 @@ public class DeckService {
 		return dtoList;
 	}
 	
+	public Deck readDeck(Long id) {
+		return deckRepository.getReferenceById(id);
+	}
 	@Transactional
 	public ReadDeckDTO updateDeck(Long id, UpdateDeckDTO dto) {
 		Deck deck = deckRepository.findByOwnerAndId(userService.getAuthenticatedUser(), id).orElseThrow();

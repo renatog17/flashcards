@@ -4,13 +4,13 @@ import com.renato.flashcards.flashcards_api.domain.Deck;
 import com.renato.flashcards.flashcards_api.domain.FlashCard;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 public record CreateFlashCardDTO(
-		@NotEmpty Long idDeck,
-		@NotBlank String term, 
-		@NotBlank String definition, 
-	    @NotBlank String example) {
+		@NotNull(message = "não deve ser nulo") Long idDeck,
+		@NotBlank(message = "não deve estar em branco") String term, 
+		@NotBlank(message = "não deve estar em branco") String definition, 
+	    @NotBlank(message = "não deve estar em branco") String example) {
 
 	public FlashCard toModel() {
 		Deck deck = new Deck(this.idDeck);

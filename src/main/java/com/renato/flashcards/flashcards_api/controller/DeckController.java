@@ -24,6 +24,7 @@ import com.renato.flashcards.flashcards_api.security.domain.User;
 import com.renato.flashcards.flashcards_api.service.DeckService;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/deck")
@@ -39,7 +40,7 @@ public class DeckController {
 
 	@PostMapping
 	@Transactional
-	public ResponseEntity<?> createDeck(@RequestBody CreateDeckDTO dto, UriComponentsBuilder uri){
+	public ResponseEntity<?> createDeck(@RequestBody @Valid CreateDeckDTO dto, UriComponentsBuilder uri){
 		Deck deck = deckService.createDeck(dto);
 		return ResponseEntity.created(uri.path("api/deck/{id}").buildAndExpand(deck.getId()).toUri()).build();
 	}

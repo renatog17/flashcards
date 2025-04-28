@@ -20,6 +20,7 @@ import com.renato.flashcards.flashcards_api.security.domain.User;
 import com.renato.flashcards.flashcards_api.service.FlashCardService;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/flashcard")
@@ -34,7 +35,7 @@ public class FlashCardController {
 
 	@PostMapping
 	@Transactional
-	public ResponseEntity<?> createFlashCard(@RequestBody CreateFlashCardDTO dto, UriComponentsBuilder uri,
+	public ResponseEntity<?> createFlashCard(@RequestBody @Valid CreateFlashCardDTO dto, UriComponentsBuilder uri,
 			@AuthenticationPrincipal User user){
 		FlashCard model = flashCardService.createFlashCard(dto);
 		URI location = uri.path("api/flashcard/{id}").buildAndExpand(model.getId()).toUri();

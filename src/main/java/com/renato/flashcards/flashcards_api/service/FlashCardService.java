@@ -25,12 +25,14 @@ public class FlashCardService {
 	
 	@Transactional
 	public FlashCard createFlashCard(CreateFlashCardDTO dto) {
-		if(deckService.existsByOwnerAndId(dto.idDeck())) {
+		if(deckService.existsByOwnerAndId(dto.idDeck())	&& 
+				!flashCardRepository.existsByDeckAndTermAndDefinition(deckService.readDeck(dto.idDeck()), dto.term(), dto.definition()
+		)) {
 			FlashCard model = dto.toModel();
 			flashCardRepository.save(model);
 			return model;
 		}else {
-			throw new AccessDeniedException("Usuário não tem permissão para adicionar flashcard em um deck que não é seu");
+			throw new AccessDeniedException("Não foi possível criar um novo flashcard");
 		}
 	}
 	

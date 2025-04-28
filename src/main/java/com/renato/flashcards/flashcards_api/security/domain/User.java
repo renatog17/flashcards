@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.renato.flashcards.flashcards_api.domain.Deck;
 import com.renato.flashcards.flashcards_api.domain.UserDeck;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,6 +26,7 @@ public class User implements UserDetails{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	@Column(unique = true)
 	private String login;
 	private String password;
 	private UserRole role;
