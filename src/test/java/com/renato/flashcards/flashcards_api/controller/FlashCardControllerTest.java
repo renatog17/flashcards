@@ -1,7 +1,12 @@
 package com.renato.flashcards.flashcards_api.controller;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.mock;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.ArrayList;
+
+import org.hibernate.mapping.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +40,6 @@ import com.renato.flashcards.flashcards_api.security.service.TokenService;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class FlashCardControllerTest {
 
-
 	@Autowired
 	private TokenService tokenService;
 	@Autowired
@@ -48,11 +52,11 @@ public class FlashCardControllerTest {
 	private DeckRepository deckRepository;
 	@Autowired
 	private FlashCardRepository flashCardRepository;
-	
+
 	@Transactional
 	@Test
 	public void testCreateFlashcard() throws JsonProcessingException, Exception {
-		//arrange
+		// arrange
 		User user = new User("UserTest", "UserTest", UserRole.USER);
 		userRepository.save(user);
 		String token = tokenService.generateToken(user);
@@ -60,18 +64,18 @@ public class FlashCardControllerTest {
 		deck.setOwner(user);
 		deckRepository.save(deck);
 		CreateFlashCardDTO flashCardDTO = new CreateFlashCardDTO(deck.getId(), "Abacaxi", "ananas", "example teste");
-		//act
+		// act
 		mockMvc.perform(MockMvcRequestBuilders.post("/flashcard").contentType(MediaType.APPLICATION_JSON)
-				.header("Authorization", "Bearer "+token).content(objectMapper.writeValueAsString(flashCardDTO)))
-		//assert
+				.header("Authorization", "Bearer " + token).content(objectMapper.writeValueAsString(flashCardDTO)))
+				// assert
 				.andExpect(MockMvcResultMatchers.status().isCreated())
 				.andExpect(MockMvcResultMatchers.header().string("Location", "http://localhost/api/flashcard/1"));
 	}
-	
+
 	@Transactional
 	@Test
 	public void deveImpedirUsuarioDeCriarFlashcardEmDeckDeOutroUsuario() throws JsonProcessingException, Exception {
-		//arrange
+		// arrange
 		User user1 = new User("UserTest1", "UserTest1", UserRole.USER);
 		userRepository.save(user1);
 		Deck deck = new Deck("Deck do user 1");
@@ -80,19 +84,19 @@ public class FlashCardControllerTest {
 		User user2 = new User("UserTest2", "UserTest2", UserRole.USER);
 		userRepository.save(user2);
 		String token = tokenService.generateToken(user2);
-		
+
 		CreateFlashCardDTO flashCardDTO = new CreateFlashCardDTO(deck.getId(), "Abacaxi", "ananas", "example teste");
-		//act
+		// act
 		mockMvc.perform(MockMvcRequestBuilders.post("/flashcard").contentType(MediaType.APPLICATION_JSON)
-				.header("Authorization", "Bearer "+token).content(objectMapper.writeValueAsString(flashCardDTO)))
-		//assert
+				.header("Authorization", "Bearer " + token).content(objectMapper.writeValueAsString(flashCardDTO)))
+				// assert
 				.andExpect(MockMvcResultMatchers.status().isForbidden());
 	}
-	
+
 	@Transactional
 	@Test
 	public void testCreateFlashcardDuplicadosEmUmMesmoDeck() throws JsonProcessingException, Exception {
-		//arrange
+		// arrange
 		User user = new User("UserTest", "UserTest", UserRole.USER);
 		userRepository.save(user);
 		String token = tokenService.generateToken(user);
@@ -102,69 +106,134 @@ public class FlashCardControllerTest {
 		FlashCard flashCard = new FlashCard("Term", "Definition", "Example", deck);
 		flashCardRepository.save(flashCard);
 		CreateFlashCardDTO flashCardDTO = new CreateFlashCardDTO(deck.getId(), "Term", "Definition", "Example");
-		//act
+		// act
 		mockMvc.perform(MockMvcRequestBuilders.post("/flashcard").contentType(MediaType.APPLICATION_JSON)
-				.header("Authorization", "Bearer "+token).content(objectMapper.writeValueAsString(flashCardDTO)))
-		//assert
+				.header("Authorization", "Bearer " + token).content(objectMapper.writeValueAsString(flashCardDTO)))
+				// assert
 				.andExpect(MockMvcResultMatchers.status().isForbidden());
 	}
-	
+
 	@Transactional
 	@Test
 	public void testCreateFlashcardDuplicadosEmUmDeckDiferente() throws JsonProcessingException, Exception {
-		//arrange
+		// arrange
 		User user = new User("UserTest", "UserTest", UserRole.USER);
 		userRepository.save(user);
 		String token = tokenService.generateToken(user);
-		
+
 		Deck deck = new Deck("teste create flashcards");
 		deck.setOwner(user);
 		deckRepository.save(deck);
-		
+
 		Deck deck2 = new Deck("teste create flashcards 2");
 		deck2.setOwner(user);
 		deckRepository.save(deck2);
-		
+
 		FlashCard flashCard = new FlashCard("Term", "Definition", "Example", deck);
 		flashCardRepository.save(flashCard);
 		CreateFlashCardDTO flashCardDTO = new CreateFlashCardDTO(deck2.getId(), "Term", "Definition", "Example");
-		//act
+		// act
 		mockMvc.perform(MockMvcRequestBuilders.post("/flashcard").contentType(MediaType.APPLICATION_JSON)
-				.header("Authorization", "Bearer "+token).content(objectMapper.writeValueAsString(flashCardDTO)))
-		//assert
+				.header("Authorization", "Bearer " + token).content(objectMapper.writeValueAsString(flashCardDTO)))
+				// assert
 				.andExpect(MockMvcResultMatchers.status().isCreated())
 				.andExpect(MockMvcResultMatchers.header().string("Location", "http://localhost/api/flashcard/2"));
 	}
-	
+
 	@Transactional
 	@Test
 	public void testCreateFlashcard_AllFieldsInvalid_ShouldReturnAllValidationErrors() throws Exception {
-	    // arrange
-	    User user = new User("UserTest", "UserTest", UserRole.USER);
-	    userRepository.save(user);
-	    String token = tokenService.generateToken(user);
+		// arrange
+		User user = new User("UserTest", "UserTest", UserRole.USER);
+		userRepository.save(user);
+		String token = tokenService.generateToken(user);
 
-	    // Creating a DTO with all fields invalid (null idDeck, blank fields)
-	    CreateFlashCardDTO flashCardDTO = new CreateFlashCardDTO(
-	            null, // idDeck null
-	            " ",  // term blank
-	            " ",  // definition blank
-	            " "   // example blank
-	    );
+		// Creating a DTO with all fields invalid (null idDeck, blank fields)
+		CreateFlashCardDTO flashCardDTO = new CreateFlashCardDTO(null, // idDeck null
+				" ", // term blank
+				" ", // definition blank
+				" " // example blank
+		);
 
-	    // act & assert
-	    mockMvc.perform(MockMvcRequestBuilders.post("/flashcard")
-	            .contentType(MediaType.APPLICATION_JSON)
-	            .header("Authorization", "Bearer " + token)
-	            .content(objectMapper.writeValueAsString(flashCardDTO)))
-	        .andExpect(status().isBadRequest())
-	        .andExpect(jsonPath("$.length()").value(4))
-	        .andExpect(jsonPath("$[?(@.campo == 'idDeck')].mensagem").value("não deve ser nulo"))
-	        .andExpect(jsonPath("$[?(@.campo == 'term')].mensagem").value("não deve estar em branco"))
-	        .andExpect(jsonPath("$[?(@.campo == 'definition')].mensagem").value("não deve estar em branco"))
-	        .andExpect(jsonPath("$[?(@.campo == 'example')].mensagem").value("não deve estar em branco"));
+		// act & assert
+		mockMvc.perform(MockMvcRequestBuilders.post("/flashcard").contentType(MediaType.APPLICATION_JSON)
+				.header("Authorization", "Bearer " + token).content(objectMapper.writeValueAsString(flashCardDTO)))
+				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.length()").value(4))
+				.andExpect(jsonPath("$[?(@.campo == 'idDeck')].mensagem").value("não deve ser nulo"))
+				.andExpect(jsonPath("$[?(@.campo == 'term')].mensagem").value("não deve estar em branco"))
+				.andExpect(jsonPath("$[?(@.campo == 'definition')].mensagem").value("não deve estar em branco"))
+				.andExpect(jsonPath("$[?(@.campo == 'example')].mensagem").value("não deve estar em branco"));
 	}
-	//cenários: 
-	//cadastrar flashcard sem token
+	
+	@Test
+	@Transactional
+	public void testDeleteFlashCardOfOtherUser() throws Exception {
+		//arrange
+		Deck deck = new Deck("deck");
+		deckRepository.save(deck);
+		
+		FlashCard flashCard = new FlashCard("term", "definition", "example", deck );
+		flashCardRepository.save(flashCard);
+		
+		ArrayList<FlashCard> flashCards = new ArrayList<FlashCard>();
+		flashCards.add(flashCard);
+		deck.setFlashCards(flashCards);
+		
+		User user = new User("teste", "teste", UserRole.USER);
+		userRepository.save(user);
+		deck.setOwner(user);
+		
+		User user2 = new User("teste1", "teste", UserRole.USER);
+		String token = tokenService.generateToken(user2);
+		userRepository.save(user2);
+		
+		//act
+		mockMvc.perform(MockMvcRequestBuilders.delete("/flashcard/"+flashCard.getId())
+				.header("Authorization", "Bearer " + token))
+//				//assert
+				.andExpect(status().isForbidden());
+	}
+	
+	// cenários:
+	// cadastrar flashcard sem token
 	//
+	
+//	@Test
+//	@Transactional
+//	public void testReadHappyPath() throws Exception {
+//		//arrange
+//		Deck deck = new Deck("deck");
+//		deckRepository.save(deck);
+//		
+//		FlashCard flashCard = new FlashCard("term", "definition", "example", deck );
+//		flashCardRepository.save(flashCard);
+//		
+//		ArrayList<FlashCard> flashCards = new ArrayList<FlashCard>();
+//		flashCards.add(flashCard);
+//		deck.setFlashCards(flashCards);
+//		
+//		User user = new User("teste", "teste", UserRole.USER);
+//		userRepository.save(user);
+//		deck.setOwner(user);
+//		
+//		String token = tokenService.generateToken(user);
+//		//act
+//		mockMvc.perform(MockMvcRequestBuilders.get("/flashcard"+flashCard.getId())
+//		.header("Authorization", "Bearer " + token))
+//		//assert
+//		.andExpect(status().isOk());
+//		//agora colocar o teste do retorno json
+//	}
+//	
+//	@Test
+//	@Transactional
+//	public void testReadFlashCardOfOtherUser(){
+//		//arrange
+//		//act
+//		//assert
+//	}
+	
+	//cenários read:
+	//read happy path
+	//read flashcard de outro user
 }

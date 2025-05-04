@@ -3,6 +3,7 @@ package com.renato.flashcards.flashcards_api.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,7 +62,14 @@ public class DeckService {
 	
 	@Transactional
 	public void deleteDeck(Long id) {
-		deckRepository.deleteByOwnerAndId(userService.getAuthenticatedUser(), id);
+		System.out.println("usuário autenticado "+ userService.getAuthenticatedUser().getLogin());
+		if(existsByOwnerAndId(id)) {
+			Deck referenceById = deckRepository.getReferenceById(id);
+			System.out.println("usuário dono do deck " +referenceById.getOwner().getLogin());
+			deckRepository.deleteByOwnerAndId(userService.getAuthenticatedUser(), id);
+		}else {
+			throw new AccessDeniedException("Não foi possível criar um novo flashcard");
+		}
 	}
 	
 	public Boolean existsByOwnerAndId(Long id) {

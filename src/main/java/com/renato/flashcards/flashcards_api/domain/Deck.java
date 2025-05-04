@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.renato.flashcards.flashcards_api.security.domain.User;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -38,7 +39,7 @@ public class Deck {
 	@Column(nullable = false, length = 100)
 	private String name;
 
-	@OneToMany(mappedBy = "deck", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "deck", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@Builder.Default
 	private List<FlashCard> flashCards = new ArrayList<>();
 	
